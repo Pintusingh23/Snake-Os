@@ -1,4 +1,4 @@
-#include "string.h"
+#include "../include/string.h"
 
 /* Returns the length of a null-terminated string. */
 int my_strlen(const char *s)

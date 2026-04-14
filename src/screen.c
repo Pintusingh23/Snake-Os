@@ -1,5 +1,5 @@
-#include "screen.h"
-#include "string.h"
+#include "../include/screen.h"
+#include "../include/string.h"
 
 #include <stdio.h>
 
@@ -63,25 +63,37 @@ void screen_draw_string(int x, int y, const char *s)
 /* Draws a border box of the requested width and height using '#'. */
 void screen_draw_border(int width, int height)
 {
-	int x;
-	int y;
+	int i;
 
 	if (width < 2 || height < 2) {
 		return;
 	}
 
-	x = 1;
-	while (x <= width) {
-		screen_draw_char(x, 1, '#');
-		screen_draw_char(x, height, '#');
-		x++;
+	/* Top row */
+	screen_move_cursor(1, 1);
+	for (i = 0; i < width; i++) {
+		putchar('_');
 	}
 
-	y = 2;
-	while (y < height) {
-		screen_draw_char(1, y, '#');
-		screen_draw_char(width, y, '#');
-		y++;
+	/* Score separator */
+	screen_move_cursor(1, 3);
+	for (i = 0; i < width; i++) {
+		putchar('_');
+	}
+
+	/* Bottom row */
+	screen_move_cursor(1, height);
+	for (i = 0; i < width; i++) {
+		putchar('_');
+	}
+
+	/* Left and Right side bars */
+	for (i = 2; i < height; i++) {
+		if (i == 3) {
+			continue;
+		}
+		screen_draw_char(1, i, '|');
+		screen_draw_char(width, i, '|');
 	}
 }
 

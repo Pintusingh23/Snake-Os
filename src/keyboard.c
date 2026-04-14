@@ -1,4 +1,4 @@
-#include "keyboard.h"
+#include "../include/keyboard.h"
 
 #include <stdio.h>
 #include <termios.h>
@@ -18,23 +18,31 @@ static char map_key(char first)
 	char second;
 	char third;
 	ssize_t n;
+	int tries;
 
 	if (first != 27) {
 		return first;
 	}
 
-	n = read(STDIN_FILENO, &second, 1);
-	if (n != 1) {
-		return 0;
+	/* Use a tiny retry loop for the rest of the escape sequence.
+	 * Arrow keys arrive as ESC [ A/B/C/D. 
+	 */
+	second = 0;
+	for (tries = 0; tries < 100; tries++) {
+		n = read(STDIN_FILENO, &second, 1);
+		if (n == 1) break;
+		usleep(100); /* 0.1ms */
 	}
 
 	if (second != '[') {
 		return 0;
 	}
 
-	n = read(STDIN_FILENO, &third, 1);
-	if (n != 1) {
-		return 0;
+	third = 0;
+	for (tries = 0; tries < 100; tries++) {
+		n = read(STDIN_FILENO, &third, 1);
+		if (n == 1) break;
+		usleep(100);
 	}
 
 	if (third == 'A') {
