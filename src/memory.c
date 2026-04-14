@@ -1,7 +1,7 @@
-#include "memory.h"
+#include "../include/memory.h"
 
-#include "screen.h"
-#include "string.h"
+#include "../include/screen.h"
+#include "../include/string.h"
 
 /*
  * NOTE:
@@ -202,6 +202,11 @@ void my_dealloc(void *ptr)
 	/* Step 3: recover the header and mark it free. */
 	hdr = (BlockHeader *)(payload - hsz);
 	if (!header_in_heap(hdr)) {
+		return;
+	}
+
+	/* Prevent double-free heap corruption */
+	if (hdr->is_free) {
 		return;
 	}
 

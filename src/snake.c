@@ -1,10 +1,11 @@
-#include "keyboard.h"
-#include "memory.h"
-#include "screen.h"
-#include "string.h"
+#include "../include/keyboard.h"
+#include "../include/memory.h"
+#include "../include/screen.h"
+#include "../include/string.h"
 
 #include <unistd.h>
 #include <time.h>
+#include <stdint.h>
 
 #define BOARD_WIDTH 40
 #define BOARD_HEIGHT 20
@@ -12,8 +13,8 @@
 #define SCORE_ROW 2
 #define PLAY_MIN_X 2
 #define PLAY_MAX_X (BOARD_WIDTH - 1)
-#define PLAY_MIN_Y 3
-#define PLAY_MAX_Y (BOARD_HEIGHT - 1)
+#define PLAY_MIN_Y 4
+#define PLAY_MAX_Y (BOARD_HEIGHT - 2)
 
 #define FOOD_CHAR '*'
 
@@ -137,7 +138,7 @@ static void seed_rng(void)
 {
     unsigned int seed;
 
-    seed = (unsigned int)time(0);
+    seed = ((unsigned int)time(0)) ^ ((unsigned int)(uintptr_t)&seed);
     if (seed == 0U) {
         seed = 1U;
     }
@@ -163,8 +164,8 @@ static void draw_score_row(int width, int score)
     my_strcpy(score_text + label_len, score_num);
     score_text[label_len + num_len] = '\0';
 
-    screen_draw_char(1, SCORE_ROW, '#');
-    screen_draw_char(width, SCORE_ROW, '#');
+    screen_draw_char(1, SCORE_ROW, '|');
+    screen_draw_char(width, SCORE_ROW, '|');
 
     x = 2;
     while (x <= width - 1) {
@@ -217,26 +218,31 @@ static int place_food(Food *food, const Snake *snake)
     return 0;
 }
 
-static void delay_one_tick(void)
+static void delay_one_tick(char direction)
 {
-	usleep(100000);
+    /* Compensate for terminal font aspect ratio (2.5x multiplier requested) */
+    if (direction == 'W' || direction == 'S') {
+        usleep(150000); /* Y-axis takes 2.5x as long */
+    } else {
+        usleep(60000);  /* X-axis */
+    }
 }
 
 static void update_direction(Snake *snake, char key)
 {
-    if (key == 'w' || key == 'W') {
+    if ((key == 'w' || key == 'W') && snake->direction != 'S') {
         snake->direction = 'W';
     }
 
-    if (key == 'a' || key == 'A') {
+    if ((key == 'a' || key == 'A') && snake->direction != 'D') {
         snake->direction = 'A';
     }
 
-    if (key == 's' || key == 'S') {
+    if ((key == 's' || key == 'S') && snake->direction != 'W') {
         snake->direction = 'S';
     }
 
-    if (key == 'd' || key == 'D') {
+    if ((key == 'd' || key == 'D') && snake->direction != 'A') {
         snake->direction = 'D';
     }
 }
@@ -307,6 +313,8 @@ int main(void)
 	}
 
     screen_clear();
+    /* Hide cursor: \033[?25l */
+    screen_draw_string(1, 1, "\033[?25l");
     screen_draw_border(BOARD_WIDTH, BOARD_HEIGHT);
 	draw_score_row(BOARD_WIDTH, score);
     screen_draw_char(snake->x, snake->y, '@');
@@ -377,7 +385,7 @@ int main(void)
             break;
         }
 
-        delay_one_tick();
+        delay_one_tick(snake->direction);
     }
 
     /* Free any remaining tail segments before exit (true runtime free). */
@@ -386,6 +394,39 @@ int main(void)
     }
 
     my_dealloc((void *)snake);
+
+    {
+        /* Game Over message - Clear middle rows first for clean display */
+        int rx, ry;
+        for (ry = BOARD_HEIGHT / 2 - 1; ry <= BOARD_HEIGHT / 2 + 2; ry++) {
+            for (rx = 2; rx < BOARD_WIDTH; rx++) {
+                screen_draw_char(rx, ry, ' ');
+            }
+        }
+    }
+
+    screen_move_cursor(BOARD_WIDTH / 2 - 5, BOARD_HEIGHT / 2);
+    screen_draw_string(BOARD_WIDTH / 2 - 5, BOARD_HEIGHT / 2, " GAME OVER ");
+    screen_move_cursor(BOARD_WIDTH / 2 - 7, BOARD_HEIGHT / 2 + 1);
+    screen_draw_string(BOARD_WIDTH / 2 - 7, BOARD_HEIGHT / 2 + 1, " Final Score: ");
+    
+    {
+        char final_score_buf[16];
+        my_int_to_str(score, final_score_buf);
+        screen_draw_string(BOARD_WIDTH / 2 + 7, BOARD_HEIGHT / 2 + 1, final_score_buf);
+    }
+    
+    /* Ensure borders are intact after Game Over message */
+    screen_draw_char(1, BOARD_HEIGHT / 2, '|');
+    screen_draw_char(BOARD_WIDTH, BOARD_HEIGHT / 2, '|');
+    screen_draw_char(1, BOARD_HEIGHT / 2 + 1, '|');
+    screen_draw_char(BOARD_WIDTH, BOARD_HEIGHT / 2 + 1, '|');
+
+    screen_move_cursor(1, BOARD_HEIGHT + 1);
+    /* Show cursor: \033[?25h */
+    screen_draw_string(1, BOARD_HEIGHT + 1, "\033[?25h");
+    screen_present();
+    
     keyboard_restore();
     return 0;
 }
