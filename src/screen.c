@@ -2,6 +2,8 @@
 #include "../include/string.h"
 
 #include <stdio.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
 
 /* Writes a null-terminated string to stdout using character output only. */
 static void write_text(const char *s)
@@ -12,11 +14,13 @@ static void write_text(const char *s)
     }
 }
 
-/* Clears terminal screen and places cursor at the top-left corner. */
+/* Clears terminal screen, scrollback buffer, and places cursor at top-left. */
 void screen_clear(void)
 {
 	write_text("\033[2J");
+	write_text("\033[3J");
 	write_text("\033[1;1H");
+	fflush(stdout);
 }
 
 /* Moves the cursor to column x and row y. */
@@ -60,7 +64,20 @@ void screen_draw_string(int x, int y, const char *s)
 	}
 }
 
-/* Draws a border box of the requested width and height using '#'. */
+/* Helper: draw a full horizontal line at row y. */
+static void draw_hline(int width, int y)
+{
+	int i;
+
+	screen_move_cursor(1, y);
+	putchar('+');
+	for (i = 2; i < width; i++) {
+		putchar('-');
+	}
+	putchar('+');
+}
+
+/* Draws a vibrant border box with +, -, | characters. */
 void screen_draw_border(int width, int height)
 {
 	int i;
@@ -69,36 +86,52 @@ void screen_draw_border(int width, int height)
 		return;
 	}
 
-	/* Top row */
-	screen_move_cursor(1, 1);
-	for (i = 0; i < width; i++) {
-		putchar('_');
-	}
+	write_text("\033[1;36m"); /* Bold Cyan borders */
 
-	/* Score separator */
-	screen_move_cursor(1, 3);
-	for (i = 0; i < width; i++) {
-		putchar('_');
-	}
+	/* Top border (row 1) */
+	draw_hline(width, 1);
 
-	/* Bottom row */
-	screen_move_cursor(1, height);
-	for (i = 0; i < width; i++) {
-		putchar('_');
-	}
+	/* Score separator (row 3) */
+	draw_hline(width, 3);
 
-	/* Left and Right side bars */
-	for (i = 2; i < height; i++) {
-		if (i == 3) {
-			continue;
-		}
+	/* Bottom border (row height) */
+	draw_hline(width, height);
+
+	/* Score row side bars */
+	screen_draw_char(1, 2, '|');
+	screen_draw_char(width, 2, '|');
+
+	/* Play area side bars (row 4 to row height-1) */
+	for (i = 4; i < height; i++) {
 		screen_draw_char(1, i, '|');
 		screen_draw_char(width, i, '|');
 	}
+
+	write_text("\033[0m"); /* Reset */
 }
 
 /* Flushes pending terminal output for the current frame. */
 void screen_present(void)
 {
 	fflush(stdout);
+}
+
+/* Gets the current terminal dimensions dynamically. */
+void screen_get_size(int *width, int *height)
+{
+	struct winsize w;
+	if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) == 0) {
+		*width = w.ws_col;
+		*height = w.ws_row;
+	} else {
+		*width = 40; /* Fallback */
+		*height = 20;
+	}
+}
+
+/* No-op kept for API compat. */
+void screen_set_offset(int x, int y)
+{
+	(void)x;
+	(void)y;
 }
