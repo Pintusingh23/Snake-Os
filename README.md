@@ -1,6 +1,6 @@
 # 🐍 Snake-OS
 
-![Snake-OS Logo](/Users/pranaysarkar/.gemini/antigravity/brain/30aa7231-ba72-4089-b10e-3bf468cafd9c/snake_os_title_mockup_1777321422130.png)
+![Snake-OS Logo](assets/logo.png)
 
 ### **A Bare-Metal, High-Fidelity Terminal Gaming Experience**
 **Snake-OS** is a masterclass in low-level C programming. Built entirely without the C Standard Library (`stdlib.h`), it interacts directly with the operating system and terminal via custom-built memory allocators, math libraries, and ANSI rendering engines.
@@ -34,7 +34,7 @@
   - `#` (Super): 5 Points. Rare and high-stakes.
 - **Blinking Expire System**: Timed food blinks when it's about to vanish!
 
-![Snake-OS Gameplay](/Users/pranaysarkar/.gemini/antigravity/brain/30aa7231-ba72-4089-b10e-3bf468cafd9c/snake_os_gameplay_mockup_1777321441789.png)
+![Snake-OS Gameplay](assets/gameplay.png)
 
 ---
 
