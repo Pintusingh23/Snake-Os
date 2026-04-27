@@ -24,6 +24,7 @@ static int g_level = 1;
 static int g_high_score = 0;
 static int g_snake_color = 0; /* 0=green 1=cyan 2=magenta 3=yellow 4=red 5=blue */
 static int g_popup_x = 0, g_popup_y = 0, g_popup_timer = 0, g_popup_pts = 0;
+static int g_classic_mode = 0; /* 0 = Infinity (Wrap), 1 = Classic (Death on wall) */
 
 typedef struct Segment { int x; int y; struct Segment *next; } Segment;
 Segment *snake_head = 0;
@@ -232,11 +233,16 @@ static int move_snake(Snake *snake)
     if (snake->direction == 'A') nx--;
     if (snake->direction == 'S') ny++;
     if (snake->direction == 'D') nx++;
-    /* Wrap around borders instead of dying */
-    if (nx < PLAY_MIN_X) nx = g_play_max_x;
-    if (nx > g_play_max_x) nx = PLAY_MIN_X;
-    if (ny < PLAY_MIN_Y) ny = g_play_max_y;
-    if (ny > g_play_max_y) ny = PLAY_MIN_Y;
+    
+    if (g_classic_mode) {
+        if (nx < PLAY_MIN_X || nx > g_play_max_x || ny < PLAY_MIN_Y || ny > g_play_max_y) return 0;
+    } else {
+        /* Wrap around borders */
+        if (nx < PLAY_MIN_X) nx = g_play_max_x;
+        if (nx > g_play_max_x) nx = PLAY_MIN_X;
+        if (ny < PLAY_MIN_Y) ny = g_play_max_y;
+        if (ny > g_play_max_y) ny = PLAY_MIN_Y;
+    }
     snake->x = nx; snake->y = ny; return 1;
 }
 
@@ -337,6 +343,8 @@ static void show_title(void)
     }
 
     screen_draw_string(cx - 10, cy + 9, "\033[1;37m Press any key to start...\033[0m");
+    screen_draw_string(cx - 11, cy + 11, "\033[1;35m [M] Mode: \033[0m");
+    screen_draw_string(cx - 1, cy + 11, g_classic_mode ? "\033[1;31mCLASSIC\033[0m " : "\033[1;32mINFINITY\033[0m");
 
     { int ry;
       for (ry = PLAY_MIN_Y; ry < g_board_height; ry++) {
@@ -346,8 +354,22 @@ static void show_title(void)
     }
     screen_move_cursor(1, g_board_height + 1);
     screen_present();
-    while (!key_pressed()) { usleep(50000); }
-    read_key();
+
+    while (1) {
+        if (key_pressed()) {
+            char k = read_key();
+            if (k == 'm' || k == 'M') {
+                g_classic_mode = !g_classic_mode;
+                /* Quick redraw of mode line */
+                screen_draw_string(cx - 1, cy + 11, g_classic_mode ? "\033[1;31mCLASSIC\033[0m " : "\033[1;32mINFINITY\033[0m");
+                screen_move_cursor(1, g_board_height + 1);
+                screen_present();
+            } else {
+                break;
+            }
+        }
+        usleep(50000);
+    }
 }
 
 int main(void)
