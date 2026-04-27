@@ -16,3 +16,7 @@ Thumbs.db
 # Package files
 package-lock.json
 node_modules/
+
+# Game data
+highscore.dat
+
