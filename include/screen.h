@@ -19,4 +19,10 @@ void screen_draw_border(int width, int height);
 /* Flushes pending terminal output for the current frame. */
 void screen_present(void);
 
+/* Gets the current terminal dimensions dynamically. */
+void screen_get_size(int *width, int *height);
+
+/* Sets the global offset for centering the screen. */
+void screen_set_offset(int x, int y);
+
 #endif /* SNAKE_OS_SCREEN_H */
