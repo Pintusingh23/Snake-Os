@@ -23,6 +23,7 @@ static int g_play_max_y = 17;
 static int g_level = 1;
 static int g_high_score = 0;
 static int g_snake_color = 0; /* 0=green 1=cyan 2=magenta 3=yellow 4=red 5=blue */
+static int g_popup_x = 0, g_popup_y = 0, g_popup_timer = 0, g_popup_pts = 0;
 
 typedef struct Segment { int x; int y; struct Segment *next; } Segment;
 Segment *snake_head = 0;
@@ -259,9 +260,52 @@ static void full_redraw(int width, int height, int score, int level, Snake *s, F
         draw_food(bonus);
     tail_draw();
     draw_head(s->x, s->y, s->direction);
-    screen_draw_string(2, height + 1, "\033[2;37m WASD/Arrows: Move | Q: Quit\033[0m");
+    screen_draw_string(2, height + 1, "\033[2;37m WASD: Move | P: Pause | Q: Quit\033[0m");
     screen_move_cursor(1, height + 2);
     screen_present();
+}
+
+/* 3-2-1-GO countdown before gameplay begins */
+static void show_countdown(void)
+{
+    int cx, cy;
+    cx = my_div(g_board_width, 2);
+    cy = my_div(PLAY_MIN_Y + g_play_max_y, 2);
+
+    screen_draw_string(cx - 1, cy, "\033[1;31m 3 \033[0m");
+    screen_present(); usleep(700000);
+    screen_draw_string(cx - 1, cy, "\033[1;33m 2 \033[0m");
+    screen_present(); usleep(700000);
+    screen_draw_string(cx - 1, cy, "\033[1;32m 1 \033[0m");
+    screen_present(); usleep(700000);
+    screen_draw_string(cx - 2, cy, "\033[1;32m GO! \033[0m");
+    screen_present(); usleep(400000);
+    screen_draw_string(cx - 2, cy, "     ");
+}
+
+/* Flash snake red on death */
+static void death_animation(int sx, int sy)
+{
+    int flash;
+    Segment *cur;
+    for (flash = 0; flash < 6; flash++) {
+        cur = snake_head;
+        if (flash & 1) {
+            while (cur != 0) {
+                screen_draw_string(cur->x, cur->y, color_bold[g_snake_color]);
+                cur = cur->next;
+            }
+            draw_head(sx, sy, 'D');
+        } else {
+            while (cur != 0) {
+                screen_draw_string(cur->x, cur->y, "\033[1;31mo\033[0m");
+                cur = cur->next;
+            }
+            screen_draw_string(sx, sy, "\033[1;31mX\033[0m");
+        }
+        screen_present();
+        usleep(200000);
+    }
 }
 
 static void show_title(void)
@@ -355,6 +399,7 @@ int main(void)
         }
 
         full_redraw(g_board_width, g_board_height, score, g_level, snake, &food, &bonus);
+        show_countdown();
 
         while (running) {
             char key;
@@ -366,11 +411,54 @@ int main(void)
                 prev_tw = new_tw; prev_th = new_th;
                 calc_board(new_tw, new_th);
                 if (g_board_width < MIN_BOARD_W || g_board_height < MIN_BOARD_H) {
-                    running = 0; break;
+                    /* Too small: show message and wait until resized back */
+                    screen_clear();
+                    screen_draw_string(1, 1, "\033[?25l");
+                    screen_draw_string(1, 1, "\033[1;31mToo small! Resize window.\033[0m");
+                    screen_present();
+                    while (1) {
+                        int rw, rh;
+                        screen_get_size(&rw, &rh);
+                        calc_board(rw, rh);
+                        if (g_board_width >= MIN_BOARD_W && g_board_height >= MIN_BOARD_H) {
+                            prev_tw = rw; prev_th = rh;
+                            break;
+                        }
+                        if (key_pressed()) {
+                            char rk;
+                            rk = read_key();
+                            if (rk == 'q' || rk == 'Q') { running = 0; quit_game = 1; break; }
+                        }
+                        usleep(100000);
+                    }
+                    if (!running) break;
                 }
                 /* Clamp snake into new bounds */
                 if (snake->x > g_play_max_x) snake->x = g_play_max_x;
                 if (snake->y > g_play_max_y) snake->y = g_play_max_y;
+                /* Remove out-of-bounds tail segments */
+                {
+                    Segment *cur, *prev_seg, *tmp;
+                    prev_seg = 0;
+                    cur = snake_head;
+                    while (cur != 0) {
+                        if (cur->x < PLAY_MIN_X || cur->x > g_play_max_x ||
+                            cur->y < PLAY_MIN_Y || cur->y > g_play_max_y ||
+                            (cur->x == snake->x && cur->y == snake->y)) {
+                            /* Remove this segment */
+                            tmp = cur;
+                            if (prev_seg == 0) { snake_head = cur->next; }
+                            else { prev_seg->next = cur->next; }
+                            cur = cur->next;
+                            screen_draw_char(tmp->x, tmp->y, ' ');
+                            my_dealloc((void *)tmp);
+                            snake_length--;
+                        } else {
+                            prev_seg = cur;
+                            cur = cur->next;
+                        }
+                    }
+                }
                 /* Relocate food if out of bounds */
                 if (food.x > g_play_max_x || food.y > g_play_max_y)
                     place_food_at(&food, snake, 0);
@@ -383,7 +471,36 @@ int main(void)
             if (key_pressed()) {
                 key = read_key();
                 if (key == 'q' || key == 'Q') { running = 0; quit_game = 1; }
-                update_direction(snake, key);
+                else if (key == 'p' || key == 'P') {
+                    /* ---- PAUSE ---- */
+                    int pcx, pcy;
+                    pcx = my_div(g_board_width, 2);
+                    pcy = my_div(PLAY_MIN_Y + g_play_max_y, 2);
+                    screen_draw_string(pcx - 5, pcy, "\033[1;33m  PAUSED  \033[0m");
+                    screen_draw_string(pcx - 8, pcy + 1, "\033[2;37m Press P to resume \033[0m");
+                    screen_present();
+                    while (1) {
+                        char pk;
+                        if (key_pressed()) {
+                            pk = read_key();
+                            if (pk == 'p' || pk == 'P') break;
+                            if (pk == 'q' || pk == 'Q') { running = 0; quit_game = 1; break; }
+                        }
+                        usleep(50000);
+                    }
+                    /* Redraw after unpause */
+                    if (running) {
+                        screen_draw_string(pcx - 8, pcy, "                   ");
+                        screen_draw_string(pcx - 8, pcy + 1, "                   ");
+                        tail_draw();
+                        draw_head(snake->x, snake->y, snake->direction);
+                        draw_food(&food);
+                        if (bonus.timer > 0) draw_food(&bonus);
+                        screen_present();
+                    }
+                } else {
+                    update_direction(snake, key);
+                }
             }
             if (!running) break;
 
@@ -412,6 +529,11 @@ int main(void)
                     g_level = my_div(score, 5) + 1;
                     g_snake_color = my_mod(my_div(score, 5), 6);
                     draw_score_row(g_board_width, score, g_level);
+                    /* Score popup */
+                    g_popup_x = snake->x;
+                    g_popup_y = (snake->y > PLAY_MIN_Y) ? snake->y - 1 : snake->y + 1;
+                    g_popup_timer = 8;
+                    g_popup_pts = pts;
                 }
 
                 tail_push_front(old_x, old_y);
@@ -425,6 +547,13 @@ int main(void)
                 bonus.timer--;
                 if (bonus.timer == 0) {
                     screen_draw_char(bonus.x, bonus.y, ' '); /* despawn */
+                } else if (bonus.timer < 15) {
+                    /* Blinking when about to expire */
+                    if (frame_count & 1) {
+                        screen_draw_char(bonus.x, bonus.y, ' ');
+                    } else {
+                        draw_food(&bonus);
+                    }
                 }
             }
             /* Spawn bonus every ~80 frames (~8 sec) */
@@ -434,6 +563,22 @@ int main(void)
                 if (place_food_at(&bonus, snake, bk)) {
                     bonus.timer = 50; /* lasts ~5 sec */
                     draw_food(&bonus);
+                }
+            }
+
+            /* Score popup rendering */
+            if (g_popup_timer > 0) {
+                if (g_popup_y >= PLAY_MIN_Y && g_popup_y <= g_play_max_y) {
+                    if (g_popup_pts == 1)
+                        screen_draw_string(g_popup_x, g_popup_y, "\033[1;37m+1\033[0m");
+                    else if (g_popup_pts == 3)
+                        screen_draw_string(g_popup_x, g_popup_y, "\033[1;35m+3\033[0m");
+                    else
+                        screen_draw_string(g_popup_x, g_popup_y, "\033[1;33m+5\033[0m");
+                }
+                g_popup_timer--;
+                if (g_popup_timer == 0 && g_popup_y >= PLAY_MIN_Y && g_popup_y <= g_play_max_y) {
+                    screen_draw_string(g_popup_x, g_popup_y, "  ");
                 }
             }
 
@@ -447,6 +592,12 @@ int main(void)
         }
 
         if (score > g_high_score) g_high_score = score;
+
+        /* Death animation (only if died, not if quit) */
+        if (!quit_game) {
+            death_animation(snake->x, snake->y);
+        }
+
         while (snake_head != 0) tail_pop_back();
         my_dealloc((void *)snake);
 
