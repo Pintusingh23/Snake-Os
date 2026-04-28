@@ -315,28 +315,7 @@ All output via `write()` / `putchar()` using VT100 control sequences:
 
 ---
 
-## Version History
 
-| Commit | Date | Author | Message |
-|--------|------|--------|---------|
-| `1b947d5` | 2026-04-28 | Pranay Sarkar | `docs: correct version history to remove fake obstacle features` |
-| `935a194` | 2026-04-28 | Pranay Sarkar | `docs: add screenshots and remove old assets` |
-| `47ae110` | 2026-04-28 | Pranay Sarkar | `docs: update README with new version` |
-| `dcf91e9` | 2026-04-28 | Pranay Sarkar | `docs: add IEEE project report` |
-| `5d05851` | 2026-04-28 | Pranay Sarkar | `fix: removed r typo and restored mode selection` |
-| `4e3bb82` | 2026-04-28 | Pranay Sarkar | `feat: added Mode Selection (Infinity/Classic) and updated README features` |
-| `08d60ab` | 2026-04-28 | Pranay Sarkar | `docs: resize and center images in README` |
-| `d75a0a5` | 2026-04-28 | Pranay Sarkar | `docs: upload images and fix relative paths in README` |
-| `34aedef` | 2026-04-28 | Pranay Sarkar | `docs: finalized premium README with visuals and setup guide` |
-| `1faae8e` | 2026-04-28 | Pranay Sarkar | `docs: complete rewrite of README with feature list and version history` |
-| `a53b76a` | 2026-04-28 | Pranay Sarkar | `remove highscore data` |
-| `827aa7e` | 2026-04-28 | Pranay Sarkar | `cleanup: ignore highscore.dat and remove build artifacts` |
-| `84b7744` | 2026-04-28 | Pranay Sarkar | `done` |
-| `9cb4d54` | 2026-04-28 | Pranay Sarkar | `cleanup: remove build artifacts and add .gitignore` |
-| `458b662` | 2026-04-28 | Pranay Sarkar | `basic ready` |
-| `2d5b297` | 2026-04-13 | Fathal | `chore: initial commit — empty project scaffold` |
-
----
 
 ## Team
 
