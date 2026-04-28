@@ -5,6 +5,7 @@
 #include "../include/math.h"
 
 #include <stdint.h>
+#include <stdio.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -23,6 +24,22 @@ static int g_play_max_y = 17;
 static int g_level = 1;
 static int g_high_score = 0;
 static int g_snake_color = 0; /* 0=green 1=cyan 2=magenta 3=yellow 4=red 5=blue */
+
+static void load_high_score(void) {
+    FILE *f = fopen(".snake_highscore", "r");
+    if (f) {
+        fscanf(f, "%d", &g_high_score);
+        fclose(f);
+    }
+}
+
+static void save_high_score(void) {
+    FILE *f = fopen(".snake_highscore", "w");
+    if (f) {
+        fprintf(f, "%d\n", g_high_score);
+        fclose(f);
+    }
+}
 static int g_popup_x = 0, g_popup_y = 0, g_popup_timer = 0, g_popup_pts = 0;
 static int g_classic_mode = 0; /* 0 = Infinity (Wrap), 1 = Classic (Death on wall) */
 
@@ -370,6 +387,7 @@ int main(void) {
     memory_init();
     keyboard_init();
     seed_rng();
+    load_high_score();
 
     while (!quit_game) {
         Snake *snake;
@@ -537,7 +555,10 @@ int main(void) {
             delay_one_tick(snake->direction);
         }
 
-        if (score > g_high_score) g_high_score = score;
+        if (score > g_high_score) {
+            g_high_score = score;
+            save_high_score();
+        }
         if (!quit_game) death_animation(snake->x, snake->y);
         while (snake_head != 0) tail_pop_back();
         my_dealloc((void *)snake);
