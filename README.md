@@ -319,35 +319,21 @@ All output via `write()` / `putchar()` using VT100 control sequences:
 
 | Commit | Date | Author | Message |
 |--------|------|--------|---------|
-| `a3f92d1` | 2026-04-28 | Pintu Singh | `release: v2.4.0` — finalize README, add screenshots, clean build |
-| `f81c304` | 2026-04-27 | Pranay Sarkar | `feat: add Super food ($) with short timer and flicker animation` |
-| `c9e5a72` | 2026-04-27 | Fathal | `feat: add Bonus food (+) with timed expiry and score popup` |
-| `b74d815` | 2026-04-26 | Pintu Singh | `feat: implement gradient snake tail coloring (bold/normal/dim)` |
-| `e23f190` | 2026-04-26 | Pranay Sarkar | `feat: direction-aware head character (^v<>)` |
-| `9a1c053` | 2026-04-25 | Fathal | `feat: dynamic board resize using ioctl(TIOCGWINSZ) every frame` |
-| `7d80e41` | 2026-04-25 | Pintu Singh | `feat: add INFINITY mode — walls wrap snake to opposite side` |
-| `4f62b97` | 2026-04-24 | Pranay Sarkar | `feat: implement custom LCG random number generator (seed_rng)` |
-| `3c9d284` | 2026-04-24 | Fathal | `feat: optimize tail segment memory reuse during movement` |
-| `2b85e60` | 2026-04-23 | Pintu Singh | `feat: 4-level difficulty progression with score thresholds` |
-| `1e74a39` | 2026-04-23 | Pranay Sarkar | `feat: add death flash animation on game over` |
-| `0f91c12` | 2026-04-22 | Fathal | `feat: 3-2-1 countdown before game start` |
-| `9e30d57` | 2026-04-22 | Pintu Singh | `feat: add pause functionality (P key)` |
-| `8c4b821` | 2026-04-21 | Pranay Sarkar | `feat: HUD — SCORE / LVL / BEST display with yellow ANSI color` |
-| `7a9f034` | 2026-04-21 | Fathal | `feat: pseudo-RNG for food using g_tick + prime multipliers 37, 53` |
-| `6d5e923` | 2026-04-20 | Pintu Singh | `feat: title screen with SNAKE-OS logo and mode selector` |
-| `5b8c741` | 2026-04-20 | Pranay Sarkar | `feat: arrow key detection via 3-byte ESC sequence parsing` |
-| `4e7d619` | 2026-04-19 | Fathal | `feat: implement screen.c — ANSI cursor, color, border drawing` |
-| `3c6a508` | 2026-04-19 | Pintu Singh | `feat: implement keyboard.c — termios raw mode, VMIN=0 VTIME=0` |
-| `2b5f397` | 2026-04-18 | Pranay Sarkar | `feat: snake movement via linked list push_front + pop_back` |
-| `1a4e286` | 2026-04-18 | Fathal | `feat: wall and self-collision detection` |
-| `0f3d175` | 2026-04-17 | Pintu Singh | `feat: reverse-direction prevention using vector sum check` |
-| `9e2c064` | 2026-04-17 | Pranay Sarkar | `feat: implement string.c — strlen, strcpy, strcmp, int_to_str` |
-| `8d1b953` | 2026-04-16 | Fathal | `feat: implement math.c — my_mul, my_div, my_mod, my_clamp` |
-| `7c0a842` | 2026-04-16 | Pintu Singh | `feat: implement memory.c — First-Fit allocator on VRAM[8192]` |
-| `6b9f731` | 2026-04-15 | Pranay Sarkar | `feat: add coalesce_forward() to merge adjacent free blocks` |
-| `5a8e620` | 2026-04-15 | Fathal | `feat: add block splitting in my_alloc to reduce fragmentation` |
-| `4f7d519` | 2026-04-14 | Pintu Singh | `feat: add align_up() — 8-byte alignment for all allocations` |
-| `3e6c408` | 2026-04-14 | Pranay Sarkar | `chore: set up project structure — src/, include/, Makefile` |
+| `1b947d5` | 2026-04-28 | Pranay Sarkar | `docs: correct version history to remove fake obstacle features` |
+| `935a194` | 2026-04-28 | Pranay Sarkar | `docs: add screenshots and remove old assets` |
+| `47ae110` | 2026-04-28 | Pranay Sarkar | `docs: update README with new version` |
+| `dcf91e9` | 2026-04-28 | Pranay Sarkar | `docs: add IEEE project report` |
+| `5d05851` | 2026-04-28 | Pranay Sarkar | `fix: removed r typo and restored mode selection` |
+| `4e3bb82` | 2026-04-28 | Pranay Sarkar | `feat: added Mode Selection (Infinity/Classic) and updated README features` |
+| `08d60ab` | 2026-04-28 | Pranay Sarkar | `docs: resize and center images in README` |
+| `d75a0a5` | 2026-04-28 | Pranay Sarkar | `docs: upload images and fix relative paths in README` |
+| `34aedef` | 2026-04-28 | Pranay Sarkar | `docs: finalized premium README with visuals and setup guide` |
+| `1faae8e` | 2026-04-28 | Pranay Sarkar | `docs: complete rewrite of README with feature list and version history` |
+| `a53b76a` | 2026-04-28 | Pranay Sarkar | `remove highscore data` |
+| `827aa7e` | 2026-04-28 | Pranay Sarkar | `cleanup: ignore highscore.dat and remove build artifacts` |
+| `84b7744` | 2026-04-28 | Pranay Sarkar | `done` |
+| `9cb4d54` | 2026-04-28 | Pranay Sarkar | `cleanup: remove build artifacts and add .gitignore` |
+| `458b662` | 2026-04-28 | Pranay Sarkar | `basic ready` |
 | `2d5b297` | 2026-04-13 | Fathal | `chore: initial commit — empty project scaffold` |
 
 ---
