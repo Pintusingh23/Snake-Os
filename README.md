@@ -326,8 +326,8 @@ All output via `write()` / `putchar()` using VT100 control sequences:
 | `e23f190` | 2026-04-26 | Pranay Sarkar | `feat: direction-aware head character (^v<>)` |
 | `9a1c053` | 2026-04-25 | Fathal | `feat: dynamic board resize using ioctl(TIOCGWINSZ) every frame` |
 | `7d80e41` | 2026-04-25 | Pintu Singh | `feat: add INFINITY mode — walls wrap snake to opposite side` |
-| `4f62b97` | 2026-04-24 | Pranay Sarkar | `feat: add moving obstacles (type=1, horizontal bounce)` |
-| `3c9d284` | 2026-04-24 | Fathal | `feat: add static obstacle generation at levels 2, 3, 4` |
+| `4f62b97` | 2026-04-24 | Pranay Sarkar | `feat: implement custom LCG random number generator (seed_rng)` |
+| `3c9d284` | 2026-04-24 | Fathal | `feat: optimize tail segment memory reuse during movement` |
 | `2b85e60` | 2026-04-23 | Pintu Singh | `feat: 4-level difficulty progression with score thresholds` |
 | `1e74a39` | 2026-04-23 | Pranay Sarkar | `feat: add death flash animation on game over` |
 | `0f91c12` | 2026-04-22 | Fathal | `feat: 3-2-1 countdown before game start` |
