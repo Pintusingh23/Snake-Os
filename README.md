@@ -73,8 +73,8 @@
   - `*` Normal — +1 point, always present, respawns immediately
   - `+` Bonus — +3 points, timed, flickers before expiry
   - `$` Super — +5 points, rare, very short timer
-- **Four Difficulty Levels** — static and moving obstacles added as score increases
-- **Moving Obstacles** — horizontal `M` enemies bounce between fixed boundaries
+- **Dynamic Difficulty** — Game speed increases by 5% every time you level up
+- **Level Progression** — Level increases every 5 points, cycling the snake's color
 - **Pause / Resume** with the `P` key
 
 ### Visuals
@@ -196,10 +196,10 @@ make clean
 
 | Score | Level | What Changes |
 |---|---|---|
-| 0 | 1 | No obstacles |
-| 50 | 2 | 10 static `#` blocks added |
-| 100 | 3 | 15 static + 2 moving `M` enemies |
-| 200 | 4 | 20 static + 4 moving `M` enemies |
+| 0 | 1 | Base speed, Green Snake |
+| 5 | 2 | +5% Speed, Cyan Snake |
+| 10 | 3 | +10% Speed, Magenta Snake |
+| 15+ | 4+ | Speed continues to scale, Colors cycle (Red, Blue) |
 
 ### Food Reference
 
@@ -225,7 +225,6 @@ snake-os/
 │   └── keyboard.c     # termios raw input, arrow key detection
 │
 ├── include/
-│   ├── snake.h        # Snake, Segment, Food, Obstacle structs
 │   ├── memory.h       # my_alloc, my_dealloc, memory_init
 │   ├── math.h         # my_mul, my_div, my_mod, my_clamp, my_abs
 │   ├── string.h       # my_strlen, my_strcpy, my_strcmp, my_int_to_str
@@ -323,7 +322,7 @@ All output via `write()` / `putchar()` using VT100 control sequences:
 |---|---|---|
 | **Pintu Singh** | 230105 | Memory allocator, game engine, level system |
 | **Pranay Sarkar** | 230047 | Screen rendering, keyboard input, HUD |
-| **Fathal** | 230043 | Math/string modules, food system, obstacles |
+| **Fathal** | 230043 | Math/string modules, food system, LCG random numbers |
 
 **Institution:** Newton School of Technology, Sonipat, India
 **Department:** B.Tech Computer Science & Artificial Intelligence (CS & AI)
