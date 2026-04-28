@@ -322,7 +322,7 @@ All output via `write()` / `putchar()` using VT100 control sequences:
 |---|---|---|
 | **Pintu Singh** | 230105 | Memory allocator, game engine, level system |
 | **Pranay Sarkar** | 230047 | Screen rendering, keyboard input, HUD |
-| **Fathal** | 230043 | Math/string modules, food system, LCG random numbers |
+| **shah Fathal** | 230043 | Math/string modules, food system, LCG random numbers |
 
 **Institution:** Newton School of Technology, Sonipat, India
 **Department:** B.Tech Computer Science & Artificial Intelligence (CS & AI)
