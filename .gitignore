@@ -17,6 +17,10 @@ Thumbs.db
 package-lock.json
 node_modules/
 
+# Next.js
+.next/
+out/
+
 # Game data
 highscore.dat
 
